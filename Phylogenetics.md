@@ -1,5 +1,4 @@
-### Phylogenetic Resources
-Collection of phylogenetic resources (In progress). The list below is far from complete. New items and links to relevant benchmark papers will be included in the future.
+### Phylogenetic Software
 
 -----------------------------------------------------------------------------
 
