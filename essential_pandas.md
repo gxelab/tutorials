@@ -1,5 +1,5 @@
 # Essential pandas
-reference: Official Documentation & Cheetsheet
+reference: Official [Documentation](https://pandas.pydata.org/docs/index.html) & [Cheatsheet](https://pandas.pydata.org/Pandas_Cheat_Sheet.pdf)
 
 acrynyms:
 - `df`: DataFrame
