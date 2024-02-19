@@ -24,8 +24,10 @@ df.a                 # same as above, do not work with some column names
 df[['a']]            # DataFrame with a single column
 df[df['a'] > 10]     # rows where values in column a > 10
 
-df.iloc[10:20]       # rows 10-20
-df.iloc[:, [1, 3]]   # columns 1,3
+df.iloc[10:20]                   # rows 11-20
+df.take(range(10, 20))           # same as above
+df.iloc[:, [1, 3]]               # columns 1,3
+df.take([1, 3], axis='columns')  # save as above
 
 df.loc[:, 'a':'c']   # all columns between a to c (both a & c inclusive)
 df.loc[df['a'] > 10, ['a', 'c']]
@@ -213,30 +215,67 @@ df.groupby('a')["b"].apply(lambda x: pd.DataFrame({'ori': x, 'new': x - x.mean()
 ```python
 dfg.head(1)
 dfg.tail(1)
+
+df.pivot_table(index=['col1', 'col2'],      # columns to used to grouping and returned as index
+               columns=['col3', 'col4'],    # columns to used to grouping and returned as index
+               values = ['col5', 'col6'],   # columns used to aggregation
+               aggfunc=len,                 # aggregation function, default to mean
+               margins=True                 # compute row or column margins
+               fill_value=0                 # fill value for empty combinaitons
+)
+
+pd.corsstab(df['col1'], df['col2'], margins=True)  # similar to table(df$col1, df$col2) in R
 ```
 
 ## Merge/Join
 ```python
 # merge using columns as keys
 # how: inner, left, right, outer
+# suffixes: list-like values added to ovelapping column names from two df
 pd.merge(df1, df2, how='inner', on='key1')
+pd.merge(df1, df2, how='inner', on='key1', suffixes=('_left', '_right'))
 pd.merge(df1, df2, how='inner', on=['key1', 'key2'])
 pd.merge(df1, df2, how='left', left_on='key1_df1', right_on='key1_df2')
 
 # merge using index as keys
+pd.merge(df1, df2, left_index=True, right_index=True)
 df1.join(df2)
 
 # keep rows only appear in one df
 pd.merge(ydf, zdf, how='outer', indicator=True).
     query('_merge == "left_only"').drop(columns=['_merge'])
+
+# concatenate
+pd.concat([df1, df2])  # vertical stack
+pd.concat([df1, df2], axis=1) # horizontal stack (side by side, but still align rows by index)
+pd.concat([df1, df2], axis=1, ignore_index=True) # horizontal stack, ignore row index
+pd.concat([df1, df2], axis=1, keys=['df1', 'df2'])  # convert column names to multiIndex
+
+pd.concat([s1, s2, s3])
+pd.concat([s1, s2, s3], axis=1, join='inner')  # outer by default
+
+# concatenate with partial overlap in index or column
+s1.combine_first(s2)  # keep the first for overlapping index values
+df1.combine_first(df2)  # keep columns in df1 if overlapping
 ```
 
 ## Reshaping
 ```python
-pd.melt(df)  # wide to long
-pd.pivot(df) # long to wide
-pd.concat([df1, df2])  # vertical stack
-pd.concat([df1, df2], axis=1) # horizontal stack (side by side)
+# stack and unstack
+df.stack()   # convert columns to rows. column names becomes the last level of index
+# stack ignore missing vlaues by default, to avoid: `dropna=False`
+df.unstack() # convert rows to columns, the last level of index becomes the last level of columns
+# `level=` can be specified for both stack and unstack if columns or index is multiIndex.
+
+# wide to long (column names -> column `variable`, column values -> column `value`)
+pd.melt(df, id_vars='key')
+pd.melt(df, id_vars='key', value_vars=['A', 'B'])  # select a subset of volumns to melt
+pd.melt(df, value_vars=['A', 'B'])  # id_vars not necessary
+pd.melt(df)  # melt all columns
+
+# long to wide
+pd.pivot(df, index=['col_a', 'col_b'], columns='group', values=['col_val1', 'col_val2'])
+# equal to : df.set_index(['col_a', 'col_b', 'group']).unstack(level='group')
 ```
 
 
@@ -253,4 +292,40 @@ pd.read_excel('df.xlsx')
 df.plot.hist()  # hist for each column
 
 df.plot.scatter(x='a', y='b')
+```
+
+## MultiIndex
+```python
+s = pd.Series(
+    np.random.uniform(size=9),
+    index=[["a", "a", "a", "b", "b", "c", "c", "d", "d"], [1, 2, 3, 1, 3, 1, 2, 2, 3]])
+
+s.loc['a']
+s['a']              # level 0 == a
+s.loc[:, 2]
+s[:, 2]             # level 1 == 2
+s.loc['a':'c']
+s['a':'c']          # level 0 == a or b or c
+s.loc[['a', 'c']]
+s[['a', 'c']]       # level 0 == a or c
+s.loc[('a', 2)]
+s[('a', 2)]         # level 0 == a, level 1 == 2
+
+# below we only show simplier version. `s.loc[]` version will be skipped
+s[[('a', 2), ('b', 3)]]   # select two elements
+s[(['a', 'c'], 2)]        # select level 0 == a or c, level == 2
+s[(slice('a', 'c'), 2)]   # select level 0 == a to c, level == 2
+s[(slice(None), [1, 3])]  # select level 1 == 1 or 3
+
+# for df
+df['a']  # column level 0 == a
+df[('a', 'b')]  # column level 0 == a, level 1 == b
+df.loc['a']  # index level 0 == a
+df.loc[('a', 'b')]  # index level 0 == a, level 1 == b
+df.loc[(slice(None), 'b'), :]  # index level 1 == b
+df.loc[(slice('a', 'c'), 'b'), :]  # index level 0 == a to c, level 1 == b
+df.loc[(['a', 'c'], 'b'), :]  # index level 0 == a or c, level 1 == b
+
+# convert multiIndex to flat index
+df.columns = ["_".join(idx) for idx in df.columns.to_flat_index()]
 ```
