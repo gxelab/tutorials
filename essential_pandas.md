@@ -192,7 +192,7 @@ df.groupby('a').transform(lambda x: x.fillna(x.mean()))        # fill NA with gr
 ```
 `exapnding`, `resample`, `rolling` can be applied to grouped df, too.
 
-### Groupby -> Filtraiton
+### Groupby -> Filtration
 discard some groups, according to a group-wise computation that evaluates to `True` or `False`. The result of the filter method is then the subset of groups for which the UDF (expects series or dataframe as input) returned True.
 ```python
 # series
