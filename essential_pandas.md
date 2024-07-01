@@ -26,14 +26,14 @@ df[df['a'] > 10]     # rows where values in column a > 10
 
 df.iloc[10:20]                   # rows 11-20
 df.take(range(10, 20))           # same as above
-df.iloc[:, [1, 3]]               # columns 1,3
-df.take([1, 3], axis='columns')  # save as above
+df.iloc[:, [0, 2]]               # columns 1,3
+df.take([0, 2], axis='columns')  # save as above
 
 df.loc[:, 'a':'c']   # all columns between a to c (both a & c inclusive)
 df.loc[df['a'] > 10, ['a', 'c']]
 
-df.iat[1, 2]
-df.at[1, 'c']
+df.iat[1, 2]         # take a single element by row and column number
+df.at[1, 'c']        # take a single element by row index and column name
 ```
 
 ## General parameters for DataFrame methods
@@ -63,12 +63,12 @@ df['c'] = pd.qcut(df['a'], n, labels=False)  # bin columns into n buckets
 ## Row operations
 ```python
 # subset /filter
-df.sample(frac=0.5)
-df.sample(n=10)
-df.head(n)
-df.tail(n)
-df.nlargest(n, 'value')
-df.nsmallest(n, 'value')
+df.sample(frac=0.5)                   # sample 50% of rows
+df.sample(n=10)                       # sample 10 rows
+df.head(n)                            # first n rows
+df.tail(n)                            # last n rows
+df.nlargest(n, 'col_a')               # select n largest values in a column
+df.nsmallest(n, ['col_a', 'col_b'])   # select n smallest values in multiple columns
 
 df[df.['a'].str.contains('xxx')]  # select rows matching a pattern in a column
 df.drop_duplicates()  # Return DataFrame with duplicate rows removed.
@@ -81,8 +81,8 @@ df.query('a.str.startswith("abc")', engine='python')
 # note: column names that are python keywords (like list, import, for, etc) cannot be used.
 
 # sort
-df.sort_values('a', assending=False)
-df.sort_index()
+df.sort_values('a', assending=False)   # sort by a column
+df.sort_index()                        # sort by row index
 
 # other
 len(df)        # number of rows
@@ -105,13 +105,13 @@ https://pandas.pydata.org/docs/user_guide/groupby.html
 
 ```python
 # groupby columns
-df.groupby('a')   # = df.groupby(['a'])
-df.groupby(['a', 'b'])
+df.groupby('a')                 # = df.groupby(['a'])
+df.groupby(['a', 'b'])          # group by multiple columns
 df.groupby('a', observed=True)  # drop unobserved levels if a is `Categorical`   
 
 # groupby indexes (int, name or sequence of such)
-df.groupby(level=0)
-df.groupby(level=['a', 'b'])  # multiIndex
+df.groupby(level=0)             # single index
+df.groupby(level=['a', 'b'])    # multiIndex
 
 # mixed groupby (index + columns)
 df.groupby([pd.Grouper(level=0), "a"])
@@ -213,8 +213,8 @@ df.groupby('a')["b"].apply(lambda x: pd.DataFrame({'ori': x, 'new': x - x.mean()
 
 ### Other
 ```python
-dfg.head(1)
-dfg.tail(1)
+dfg.head(1)  # first row of each group
+dfg.tail(1)  # last row of each group
 
 df.pivot_table(index=['col1', 'col2'],      # columns to used to grouping and returned as index
                columns=['col3', 'col4'],    # columns to used to grouping and returned as index
