@@ -128,12 +128,11 @@ sns.catplot(x='sepal_length', y='species', kind='box', data=iris)
 ```
 
 ## Other tools for visualization
-- [Plotly](https://plotly.com/python/)
-- [Bokeh](https://docs.bokeh.org/en/latest/index.html)
+(Only static visualizaiton libraries)
 - [Altair](https://altair-viz.github.io/)
 - [plotnine](https://plotnine.readthedocs.io/en/stable/)
-- [ggplot](http://yhat.github.io/ggpy/)
 
 ## References
 - [Python for Data Analysis, 3rd Edition, by Wes McKinney](https://wesmckinney.com/book/plotting-and-visualization)
 - Matplotlib official [tutorials](https://matplotlib.org/stable/tutorials/index.html) and [user guide](https://matplotlib.org/stable/users/index.html)
+- Seaborn official [tutorials](https://seaborn.pydata.org/tutorial.html) and [API reference](https://seaborn.pydata.org/api.html)
